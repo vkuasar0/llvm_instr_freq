@@ -87,6 +87,7 @@
 #include "llvm/Transforms/Scalar/JumpThreading.h"
 #include "llvm/Transforms/Utils/Debugify.h"
 #include "llvm/Transforms/Utils/ModuleUtils.h"
+#include "llvm/Transforms/Utils/InstructionFrequencyPassAdapter.h"
 #include <memory>
 #include <optional>
 using namespace clang;
@@ -598,6 +599,10 @@ bool EmitAssemblyHelper::AddEmitPasses(legacy::PassManager &CodeGenPasses,
                               /*DisableVerify=*/!CodeGenOpts.VerifyModule)) {
     Diags.Report(diag::err_fe_unable_to_interface_with_target);
     return false;
+  }
+
+  if (CodeGenOpts.emitInstrFreq) {
+    CodeGenPasses.add(new InstructionFrequencyPassAdapter());
   }
 
   return true;

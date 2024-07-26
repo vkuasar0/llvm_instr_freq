@@ -4996,6 +4996,12 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
   CmdArgs.push_back("-triple");
   CmdArgs.push_back(Args.MakeArgString(TripleStr));
 
+  if(const Arg *A = Args.getLastArg(options::OPT_emit_instr_freq)) {
+    CmdArgs.push_back(
+      Args.MakeArgString(Twine("-emit-instr-freq"))
+    );
+  }
+
   if (const Arg *MJ = Args.getLastArg(options::OPT_MJ)) {
     DumpCompilationDatabase(C, MJ->getValue(), TripleStr, Output, Input, Args);
     Args.ClaimAllArgs(options::OPT_MJ);

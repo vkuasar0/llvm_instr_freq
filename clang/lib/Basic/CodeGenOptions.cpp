@@ -18,6 +18,8 @@ CodeGenOptions::CodeGenOptions() {
 
   RelocationModel = llvm::Reloc::PIC_;
   memcpy(CoverageVersion, "408*", 4);
+
+  emitInstrFreq = false;
 }
 
 void CodeGenOptions::resetNonModularOptions(StringRef ModuleFormat) {

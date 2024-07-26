@@ -21,6 +21,7 @@ add_clang_library(clangFrontend
   DependencyFile.cpp
   DependencyGraph.cpp
   DiagnosticRenderer.cpp
+  EmitInstrFreqAction.cpp
   FrontendAction.cpp
   FrontendActions.cpp
   FrontendOptions.cpp

@@ -278,6 +278,8 @@ public:
 /// FrontendOptions - Options for controlling the behavior of the frontend.
 class FrontendOptions {
 public:
+  // Our code
+  bool emitInstrFreq = false;
   /// Disable memory freeing on exit.
   LLVM_PREFERRED_TYPE(bool)
   unsigned DisableFree : 1;

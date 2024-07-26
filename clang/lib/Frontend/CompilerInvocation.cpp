@@ -4780,20 +4780,24 @@ bool CompilerInvocation::CreateFromArgsImpl(
                                      MissingArgCount, VisibilityMask);
   LangOptions &LangOpts = Res.getLangOpts();
 
-  // Check for missing argument error.
   if (MissingArgCount)
     Diags.Report(diag::err_drv_missing_argument)
         << Args.getArgString(MissingArgIndex) << MissingArgCount;
 
-  // Issue errors on unknown arguments.
+  // Our code modified
   for (const auto *A : Args.filtered(OPT_UNKNOWN)) {
     auto ArgString = A->getAsString(Args);
     std::string Nearest;
+
+    if (ArgString == "-emit-instr-freq")
+      continue;
+
+    // Existing code for unknown arguments
     if (Opts.findNearest(ArgString, Nearest, VisibilityMask) > 1)
       Diags.Report(diag::err_drv_unknown_argument) << ArgString;
     else
       Diags.Report(diag::err_drv_unknown_argument_with_suggestion)
-          << ArgString << Nearest;
+        << ArgString << Nearest;
   }
 
   ParseFileSystemArgs(Res.getFileSystemOpts(), Args, Diags);
@@ -4895,7 +4899,7 @@ bool CompilerInvocation::CreateFromArgs(CompilerInvocation &Invocation,
                                         const char *Argv0) {
   CompilerInvocation DummyInvocation;
 
-  return RoundTrip(
+  bool Success = RoundTrip(
       [](CompilerInvocation &Invocation, ArrayRef<const char *> CommandLineArgs,
          DiagnosticsEngine &Diags, const char *Argv0) {
         return CreateFromArgsImpl(Invocation, CommandLineArgs, Diags, Argv0);
@@ -4906,6 +4910,16 @@ bool CompilerInvocation::CreateFromArgs(CompilerInvocation &Invocation,
         Invocation.generateCC1CommandLine(Args, SA);
       },
       Invocation, DummyInvocation, CommandLineArgs, Diags, Argv0);
+
+  // Our code
+  unsigned MissingArgIndex, MissingArgCount;
+  llvm::opt::InputArgList Args = getDriverOptTable().ParseArgs(CommandLineArgs, MissingArgIndex, MissingArgCount);
+  if(Args.hasArg(options::OPT_emit_instr_freq)) {
+    Invocation.getFrontendOpts().emitInstrFreq = true;
+    Invocation.getCodeGenOpts().emitInstrFreq = true;
+  }
+
+  return Success;
 }
 
 std::string CompilerInvocation::getModuleHash() const {
